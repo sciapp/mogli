@@ -15,6 +15,7 @@ In python, you can achieve something similar with three lines of code:
 >>> molecules = mogli.read('examples/dna.xyz')
 >>> mogli.show(molecules[0])
 ```
+![DNA rendered in a GR window](https://raw.githubusercontent.com/FlorianRhiem/mogli/doc-images/dna-cli.png)
 
 ## Atomic bonds
 You might notice that the atomic bonds between the atoms don't look right. You can hide the bonds by adding the `show_bonds=False` to your `show()` call, but of course there's a a better way to fix the missing bonds here.
@@ -33,6 +34,7 @@ In case you use the GR framework, you can use mogli to draw molecules into your 
 >>> mogli.draw(molecules[0])
 >>> gr.updatews()
 ```
+![DNA rendered in a GR window](https://raw.githubusercontent.com/FlorianRhiem/mogli/doc-images/dna-gr.png)
 
 ## Dependencies
 mogli depends on GR3, which is included in the [GR framework](http://gr-framework.org/) ([PyPI]( https://pypi.python.org/pypi/gr), [GitHub](https://github.com/jheinen/gr)), on [glfw3](http://www.glfw.org/) ([GitHub](https://github.com/glfw/glfw)) and python bindings for glfw3 ([PyPI](https://pypi.python.org/pypi/glfw), [GitHub](https://github.com/FlorianRhiem/pyGLFW)).
