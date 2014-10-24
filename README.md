@@ -24,6 +24,19 @@ For the example above, adding `bond_param=1.15` to `show()` will do the trick. m
 
 The second method uses a constant maximum distance instead. If you use this method by passing `bond_method='constant_delta'` to `show()` or `draw()`, you can set the constant distance with the `bond_param` parameter.
 
+## Exporting to files
+Instead of viewing molecules interactively, you can export the molecule as well, for example as Portable Network Graphics into a `.png` file, or as HTML5 page with interactive WebGL code as `.html` file. To do so, simply call the `export()` function, like so:
+```
+>>> import mogli
+>>> molecules = mogli.read('examples/dna.xyz')
+>>> mogli.export(molecules[0], 'dna.html', width=1920, height=1080,
+                 bonds_param=1.15, camera=((40, 0, 0),
+                                           (0, 0, 0),
+                                           (0, 1, 0)))
+```
+
+This example code also shows setting the camera in code by passing the `camera` parameter. It expects three sequences of three floating point numbers: the camera position, the center of focus and a direction that should point upward. *Exporting to HTML5 with WebGL is a pretty near feature, give it a try!*
+
 ## Drawing with GR
 In case you use the GR framework, you can use mogli to draw molecules into your GR graphics. To do so, just call `draw()`. You can use the parameters `xmin`, `xmax`, `ymin`, `ymax`, `width` and `height` just like you would when using `gr.drawimage()`.
 

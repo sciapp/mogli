@@ -412,6 +412,45 @@ def draw(molecule,
     glDisable(GL_DEPTH_TEST)
 
 
+def export(molecule, file_name, width=500, height=500,
+           show_bonds=True, bonds_method='radii', bonds_param=None,
+           camera=None):
+    """
+    Draw the given molecule into a given file. The file type is determined by
+    the file extension, e.g. '.png' or '.html'. By default, bonds are drawn,
+    if this is undesired the show_bonds parameter can be set to False.
+    For information on the bond calculation, see Molecule.calculate_bonds.
+    If you pass a tuple of camera position, center of view and an up vector to
+    the camera parameter, the camera will be set accordingly. Otherwise the
+    molecule will be viewed in the direction of the z axis, with the y axis
+    pointing upward.
+    """
+    global _camera
+    molecule.positions -= np.mean(molecule.positions, axis=0)
+    max_atom_distance = np.max(la.norm(molecule.positions, axis=1))
+    if show_bonds:
+        molecule.calculate_bonds(bonds_method, bonds_param)
+
+    if camera is None:
+        if _camera is None:
+            camera_distance = -max_atom_distance*2.5
+            camera = ((0, 0, camera_distance),
+                      (0, 0, 0),
+                      (0, 1, 0))
+        else:
+            camera = _camera
+    camera = np.array(camera)
+    _camera = camera
+
+    # Create the GR3 scene
+    gr3.setbackgroundcolor(255, 255, 255, 0)
+    _set_gr3_camera()
+    _create_gr3_scene(molecule, show_bonds)
+    glEnable(GL_DEPTH_TEST)
+    gr3.export(file_name, width, height)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0)
+    glDisable(GL_DEPTH_TEST)
+
 def _set_gr3_camera():
     """ Set the GR3 camera, using the global _camera variable. """
     eye, center, up = _camera
