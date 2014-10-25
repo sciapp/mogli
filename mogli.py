@@ -106,6 +106,7 @@ ATOM_RADII = np.array([0,  # Avoid atomic number to index conversion
                        1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600],
                       dtype=np.float32)/1000.0
 
+ATOM_RADIUS = 1
 BOND_RADIUS = 0.13
 
 def _create_rotation_matrix(angle, x, y, z):
@@ -177,7 +178,7 @@ class Molecule(object):
     @property
     def atomic_radii(self):
         if self._atomic_radii is None:
-            self._atomic_radii = ATOM_RADII[self.atomic_numbers]
+            self._atomic_radii = ATOM_RADII[self.atomic_numbers] * ATOM_RADIUS
         return self._atomic_radii
 
     def calculate_bonds(self, method='radii', param=None):
