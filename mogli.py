@@ -23,7 +23,7 @@ import glfw
 from OpenGL.GL import glEnable, glDisable, glClear, glBindFramebuffer,\
     GL_FRAMEBUFFER, GL_DEPTH_TEST, GL_DEPTH_BUFFER_BIT, GL_COLOR_BUFFER_BIT
 
-# Atom color rgb tuples
+# Atom color rgb tuples (used for rendering, may be changed by users)
 ATOM_COLORS = np.array([(0, 0, 0),  # Avoid atomic number to index conversion
                         (255, 255, 255), (217, 255, 255), (204, 128, 255),
                         (194, 255, 0), (255, 181, 181), (144, 144, 144),
@@ -89,24 +89,33 @@ ATOM_NUMBERS = {"H": 1, "HE": 2, "LI": 3, "BE": 4, "B": 5, "C": 6, "N": 7,
                 "UUB": 112, "UUT": 113, "UUQ": 114, "UUP": 115, "UUH": 116,
                 "UUS": 117, "UUO": 118}
 
-# Atom radii in mÅ
-ATOM_RADII = np.array([0,  # Avoid atomic number to index conversion
-                       230, 930, 680, 350, 830, 680, 680, 680, 640, 1120, 970,
-                       1100, 1350, 1200, 750, 1020, 990, 1570, 1330, 990, 1440,
-                       1470, 1330, 1350, 1350, 1340, 1330, 1500, 1520, 1450,
-                       1220, 1170, 1210, 1220, 1210, 1910, 1470, 1120, 1780,
-                       1560, 1480, 1470, 1350, 1400, 1450, 1500, 1590, 1690,
-                       1630, 1460, 1460, 1470, 1400, 1980, 1670, 1340, 1870,
-                       1830, 1820, 1810, 1800, 1800, 1990, 1790, 1760, 1750,
-                       1740, 1730, 1720, 1940, 1720, 1570, 1430, 1370, 1350,
-                       1370, 1320, 1500, 1500, 1700, 1550, 1540, 1540, 1680,
-                       1700, 2400, 2000, 1900, 1880, 1790, 1610, 1580, 1550,
-                       1530, 1510, 1500, 1500, 1500, 1500, 1500, 1500, 1500,
-                       1500, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600,
-                       1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600],
-                      dtype=np.float32)/1000.0
+# Atom valence radii in Å (used for bond calculation)
+ATOM_VALENCE_RADII = np.array([0,  # Avoid atomic number to index conversion
+                               230, 930, 680, 350, 830, 680, 680, 680, 640,
+                               1120, 970, 1100, 1350, 1200, 750, 1020, 990,
+                               1570, 1330, 990, 1440, 1470, 1330, 1350, 1350,
+                               1340, 1330, 1500, 1520, 1450, 1220, 1170, 1210,
+                               1220, 1210, 1910, 1470, 1120, 1780, 1560, 1480,
+                               1470, 1350, 1400, 1450, 1500, 1590, 1690, 1630,
+                               1460, 1460, 1470, 1400, 1980, 1670, 1340, 1870,
+                               1830, 1820, 1810, 1800, 1800, 1990, 1790, 1760,
+                               1750, 1740, 1730, 1720, 1940, 1720, 1570, 1430,
+                               1370, 1350, 1370, 1320, 1500, 1500, 1700, 1550,
+                               1540, 1540, 1680, 1700, 2400, 2000, 1900, 1880,
+                               1790, 1610, 1580, 1550, 1530, 1510, 1500, 1500,
+                               1500, 1500, 1500, 1500, 1500, 1500, 1600, 1600,
+                               1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600,
+                               1600, 1600, 1600, 1600, 1600, 1600],
+                              dtype=np.float32)/1000.0
+# Prevent unintentional changes
+ATOM_VALENCE_RADII.flags.writeable = False
 
-BOND_RADIUS = 0.13
+# Atom radii in Å (used for rendering, scaled down by factor 0.4, may be
+# changed by users)
+ATOM_RADII = np.array(ATOM_VALENCE_RADII, copy=True)*0.4
+
+# Bond radius in Å (used for rendering, may be changed by users)
+BOND_RADIUS = 0.1
 
 def _create_rotation_matrix(angle, x, y, z):
     """ Creates a 3x3 rotation matrix. """
@@ -204,7 +213,7 @@ class Molecule(object):
                 return
 
         if method == 'radii':
-            radii = ATOM_RADII[self.atomic_numbers]
+            radii = ATOM_VALENCE_RADII[self.atomic_numbers]
             if param is None:
                 param = 1.0
 
@@ -469,7 +478,7 @@ def _create_gr3_scene(molecule, show_bonds=True):
     gr3.drawspheremesh(num_atoms,
                        molecule.positions,
                        ATOM_COLORS[molecule.atomic_numbers],
-                       molecule.atomic_radii/4)
+                       molecule.atomic_radii)
     if show_bonds and len(molecule.bonds.index_pairs) > 0:
         index_pairs = molecule.bonds.index_pairs
         num_bonds = len(molecule.bonds)
