@@ -291,19 +291,40 @@ def read(file_name, file_format=None):
                                              "supported by pybel, so mogli "
                                              "cannot understand it yet. Sorry!"
                                              .format(format=file_format))
-        molecule_file = pybel.readfile(file_format.encode('ascii'),
-                                       file_name.encode('ascii'))
-        molecules = []
-        for molecule in molecule_file:
-            atoms = molecule.atoms
-            atomic_numbers = np.fromiter((atom.atomicnum for atom in atoms),
-                                         dtype=np.uint8, count=len(atoms))
-            positions = np.fromiter(itertools.chain.from_iterable(atom.coords
-                                                                  for atom
-                                                                  in atoms),
-                                    dtype=np.float32, count=len(atoms)*3)
-            positions.shape = (len(atoms), 3)
-            molecules.append(Molecule(atomic_numbers, positions))
+        try:
+            # Try reading the file with the 'b' option set. This speeds up
+            # file reading dramatically for some formats (e.g. pdb).
+            # If this fails for some reasons, use pybel.readfile().
+            molecules = []
+            conv = pybel.ob.OBConversion()
+            conv.SetOptions("b".encode('ascii'), conv.INOPTIONS)
+            success = conv.SetInFormat(file_format.encode('ascii'))
+            if success:
+                mol = pybel.ob.OBMol()
+                has_molecule = conv.ReadFile(mol, file_name.encode('ascii'))
+                while has_molecule:
+                    num_atoms = mol.NumAtoms()
+                    atomic_numbers = np.zeros(num_atoms, dtype=np.uint8)
+                    positions = np.zeros((num_atoms, 3), dtype=np.float32)
+                    for i, atom in enumerate(pybel.ob.OBMolAtomIter(mol)):
+                        atomic_numbers[i] = atom.GetAtomicNum()
+                        positions[i] = (atom.GetX(), atom.GetY(), atom.GetZ())
+                    molecules.append(Molecule(atomic_numbers, positions))
+                    has_molecule = conv.Read(mol)
+        except:
+            molecule_file = pybel.readfile(file_format.encode('ascii'),
+                                           file_name.encode('ascii'))
+            molecules = []
+            for molecule in molecule_file:
+                atoms = molecule.atoms
+                atomic_numbers = np.fromiter((atom.atomicnum for atom in atoms),
+                                             dtype=np.uint8, count=len(atoms))
+                positions = np.fromiter(itertools.chain.from_iterable(atom.coords
+                                                                      for atom
+                                                                      in atoms),
+                                        dtype=np.float32, count=len(atoms)*3)
+                positions.shape = (len(atoms), 3)
+                molecules.append(Molecule(atomic_numbers, positions))
         return molecules
     else:
         if (file_format is 'xyz' or
