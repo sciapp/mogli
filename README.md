@@ -1,6 +1,6 @@
 # mogli
 
-mogli is python module for easily rendering molecules.
+mogli is a python module for easily rendering molecules.
 
 The fastest way to get started is using mogli.py in the command line:
 ```
@@ -10,11 +10,13 @@ The fastest way to get started is using mogli.py in the command line:
 This will open a new window in which the molecule will be rendered. You can then rotate the molecule using your mouse.
 
 In python, you can achieve something similar with three lines of code:
+
 ```
 >>> import mogli
 >>> molecules = mogli.read('examples/dna.xyz')
 >>> mogli.show(molecules[0])
 ```
+
 ![DNA rendered in a GR window](https://raw.githubusercontent.com/FlorianRhiem/mogli/doc-images/dna-cli.png)
 
 ## Atomic bonds
@@ -26,6 +28,7 @@ The second method uses a constant maximum distance instead. If you use this meth
 
 ## Exporting to files
 Instead of viewing molecules interactively, you can export the molecule as well, for example as Portable Network Graphics into a `.png` file, or as HTML5 page with interactive WebGL code as `.html` file. To do so, simply call the `export()` function, like so:
+
 ```
 >>> import mogli
 >>> molecules = mogli.read('examples/dna.xyz')
@@ -47,6 +50,7 @@ In case you use the GR framework, you can use mogli to draw molecules into your 
 >>> mogli.draw(molecules[0])
 >>> gr.updatews()
 ```
+
 ![DNA rendered in a GR window](https://raw.githubusercontent.com/FlorianRhiem/mogli/doc-images/dna-gr.png)
 
 ## Dependencies
