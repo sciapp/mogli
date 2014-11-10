@@ -1,3 +1,6 @@
+"""
+Setup for mogli: https://pypi.python.org/pypi/mogli
+"""
 from setuptools import setup
 import os.path
 import shutil
@@ -25,26 +28,25 @@ if not os.path.isfile('README.rst'):
 create_required_files()
 # README.txt was created in the function above, so we can use its content for
 # the long description:
-with open('README.rst') as file:
-    long_description = file.read()
+with open('README.rst') as readme_file:
+    long_description = readme_file.read()
 
 setup(name='mogli',
-      version='0.2.0',
+      version='0.2.1',
       description='Simple visualization of molecules in python',
       long_description=long_description,
       author='Florian Rhiem',
       author_email='florian.rhiem@gmail.com',
       url='https://github.com/FlorianRhiem/mogli',
-      classifiers = [
-                     'Development Status :: 5 - Production/Stable',
-                     'Intended Audience :: Science/Research',
-                     'Intended Audience :: Developers',
-                     'License :: OSI Approved :: MIT License',
-                     'Programming Language :: Python',
-                     'Topic :: Scientific/Engineering :: Visualization',
-                     'Topic :: Scientific/Engineering :: Chemistry',
-                     'Topic :: Scientific/Engineering :: Physics'
-    ],
-    py_modules=['mogli'],
-    install_requires=['glfw', 'gr', 'numpy', 'PyOpenGL'],
-)
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Intended Audience :: Science/Research',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: MIT License',
+          'Programming Language :: Python',
+          'Topic :: Scientific/Engineering :: Visualization',
+          'Topic :: Scientific/Engineering :: Chemistry',
+          'Topic :: Scientific/Engineering :: Physics',
+          ],
+      py_modules=['mogli'],
+      install_requires=['glfw', 'gr', 'numpy', 'PyOpenGL'])
