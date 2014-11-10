@@ -117,6 +117,7 @@ ATOM_RADII = np.array(ATOM_VALENCE_RADII, copy=True)*0.4
 # Bond radius in Å (used for rendering, may be changed by users)
 BOND_RADIUS = 0.1
 
+
 def _create_rotation_matrix(angle, x, y, z):
     """ Creates a 3x3 rotation matrix. """
     x, y, z = np.array((x, y, z))/la.norm((x, y, z))
@@ -137,6 +138,8 @@ def _create_rotation_matrix(angle, x, y, z):
 _mouse_dragging = False
 _previous_mouse_position = None
 _camera = None
+
+
 def _mouse_move_callback(window, x, y):
     """ Mouse move event handler for GLFW. """
     global _previous_mouse_position, _camera
@@ -159,6 +162,7 @@ def _mouse_move_callback(window, x, y):
         eye = center-forward*camera_distance
         _camera = eye, center, up
         _previous_mouse_position = (x, y)
+
 
 def _mouse_click_callback(window, button, status, modifiers):
     """ Mouse click event handler for GLFW. """
@@ -191,13 +195,14 @@ class Molecule(object):
 
     def calculate_bonds(self, method='radii', param=None):
         """
-        This function calculates which pair of atoms forms an atomic bond. Pairs
-        of indices are returned, indicating that the two associated atoms form
-        a bond.
+        This function calculates which pair of atoms forms an atomic bond.
+        Pairs of indices are returned, indicating that the two associated atoms
+        form a bond.
 
         The method used for this is specified with the parameter 'method'.
         Currently two methods are supported:
-         - using the valence radii of the atoms (optionally multiplied by param)
+         - using the valence radii of the atoms (optionally multiplied by
+             param)
          - using a constant delta as maximum distance between to bonded atoms
         """
         method = method.lower()
@@ -220,8 +225,8 @@ class Molecule(object):
         if method == 'constant_delta':
             if param is None:
                 raise ValueError("method 'constant_delta' requires param to "
-                                 "specify the maximum distance between to atoms"
-                                 " to cause a bond between them.")
+                                 "specify the maximum distance between two "
+                                 "atoms to cause a bond between them.")
 
         index_pair_list = []
         for index, position in enumerate(self.positions):
@@ -279,18 +284,16 @@ def read(file_name, file_format=None):
             if file_extension in pybel.informats.keys():
                 file_format = file_extension
             else:
-                raise UnknownFileFormatException("The file format {format} is "
-                                                 "not supported by pybel. If "
-                                                 "the file extension does not "
-                                                 "match the actual format, "
-                                                 "please use the file_format "
-                                                 "parameter."
-                                                 .format(format=file_extension))
+                message = ("The file format {format} is  not supported by "
+                           "pybel. If the file extension does not match the "
+                           "actual format, please use the file_format "
+                           "parameter.".format(format=file_extension))
+                raise UnknownFileFormatException(message)
         elif file_format not in pybel.informats.keys():
-            raise UnknownFileFormatException("The file format {format} is not "
-                                             "supported by pybel, so mogli "
-                                             "cannot understand it yet. Sorry!"
-                                             .format(format=file_format))
+            message = ("The file format {format} is not supported by pybel, so"
+                       "mogli cannot understand it yet. Sorry!"
+                       .format(format=file_format))
+            raise UnknownFileFormatException(message)
         try:
             # Try reading the file with the 'b' option set. This speeds up
             # file reading dramatically for some formats (e.g. pdb).
@@ -317,11 +320,13 @@ def read(file_name, file_format=None):
             molecules = []
             for molecule in molecule_file:
                 atoms = molecule.atoms
-                atomic_numbers = np.fromiter((atom.atomicnum for atom in atoms),
+                atomic_numbers_iterator = (atom.atomicnum for atom in atoms)
+                atomic_numbers = np.fromiter(atomic_numbers_iterator,
                                              dtype=np.uint8, count=len(atoms))
-                positions = np.fromiter(itertools.chain.from_iterable(atom.coords
-                                                                      for atom
-                                                                      in atoms),
+                positions_iterator = itertools.chain.from_iterable(atom.coords
+                                                                   for atom
+                                                                   in atoms)
+                positions = np.fromiter(positions_iterator,
                                         dtype=np.float32, count=len(atoms)*3)
                 positions.shape = (len(atoms), 3)
                 molecules.append(Molecule(atomic_numbers, positions))
@@ -347,9 +352,9 @@ def read(file_name, file_format=None):
                 molecules.append(Molecule(atomic_numbers, positions))
             return molecules
         else:
-            raise UnknownFileFormatException("Failed to import pybel. Currently"
-                                             " mogli only supports xyz files if"
-                                             " pybel is not installed.")
+            message = ("Failed to import pybel. Currently mogli only supports "
+                       "xyz files if pybel is not installed.")
+            raise UnknownFileFormatException(message)
 
 
 def show(molecule, width=500, height=500,
@@ -481,6 +486,7 @@ def export(molecule, file_name, width=500, height=500,
     glBindFramebuffer(GL_FRAMEBUFFER, 0)
     glDisable(GL_DEPTH_TEST)
 
+
 def _set_gr3_camera():
     """ Set the GR3 camera, using the global _camera variable. """
     eye, center, up = _camera
@@ -522,8 +528,7 @@ def main():
     show_bonds_group = parser.add_mutually_exclusive_group()
     show_bonds_group.add_argument('--show_bonds',
                                   action='store_true', default=True,
-                                  help='show atomic bonds (this is the default)'
-                                 )
+                                  help='show atomic bonds (default)')
     show_bonds_group.add_argument('--hide_bonds',
                                   action='store_false', dest='show_bonds',
                                   help='do not show atomic bonds')
