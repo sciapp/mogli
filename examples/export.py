@@ -1,3 +1,6 @@
+"""
+Example for exporting a molecule to an HTML5 file using mogli
+"""
 import mogli
 
 molecules = mogli.read('examples/dna.xyz')
