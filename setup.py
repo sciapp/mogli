@@ -32,7 +32,7 @@ with open('README.rst') as readme_file:
     long_description = readme_file.read()
 
 setup(name='mogli',
-      version='0.2.1',
+      version='0.2.2',
       description='Simple visualization of molecules in python',
       long_description=long_description,
       author='Florian Rhiem',

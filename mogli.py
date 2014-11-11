@@ -214,8 +214,13 @@ class Molecule(object):
             # Bonds were calculated for this molecule already.
             # Reuse those, if the method and optional parameter are like those
             # provided to this function.
-            if self.bonds.method == method and self.bonds.param == param:
-                return
+            if self.bonds.method == method:
+                if self.bonds.param == param:
+                    return
+                elif param is None:
+                    # Allow reuse when default param is used.
+                    if method == 'radii' and self.bonds.param == 1.0:
+                        return
 
         if method == 'radii':
             radii = ATOM_VALENCE_RADII[self.atomic_numbers]
@@ -374,6 +379,10 @@ def show(molecule, width=500, height=500,
     max_atom_distance = np.max(la.norm(molecule.positions, axis=1))
     if show_bonds:
         molecule.calculate_bonds(bonds_method, bonds_param)
+
+    # If GR3 was initialized earlier, it would use a different context, so
+    # it will be terminated first.
+    gr3.terminate()
 
     # Initialize GLFW and create an OpenGL context
     glfw.init()
