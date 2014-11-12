@@ -37,3 +37,8 @@ def test_read_unknown_file():
     """
     with pytest.raises(mogli.UnknownFileFormatException):
         mogli.read('unknown')[0]
+
+if __name__ == '__main__':
+    test_read_xyz_file()
+    test_read_xyz_file_and_get_atomic_radii()
+    test_read_unknown_file()

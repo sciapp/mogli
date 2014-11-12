@@ -22,3 +22,6 @@ def test_export():
     molecule = mogli.read('examples/dna.xyz')[0]
     mogli.export(molecule, 'test.html')
     assert os.path.exists('test.html')
+
+if __name__ == '__main__':
+    test_export()

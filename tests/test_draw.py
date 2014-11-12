@@ -24,3 +24,6 @@ def test_draw():
     mogli.draw(molecule)
     # Close GR again
     gr.emergencyclosegks()
+
+if __name__ == '__main__':
+    test_draw()

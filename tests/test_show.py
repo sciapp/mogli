@@ -36,3 +36,6 @@ def test_show():
     assert signal.alarm(1) == 0
     # Show the molecule (and open the GLFW window closed by the alarm handler)
     mogli.show(molecule)
+
+if __name__ == '__main__':
+    test_show()

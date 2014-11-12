@@ -111,3 +111,14 @@ def test_calculate_bonds_memoization_with_explicit_param():
     bonds = molecule.bonds
     molecule.calculate_bonds(param=1.0)
     assert molecule.bonds is bonds
+
+if __name__ == '__main__':
+    test_calculate_bonds_with_default_method()
+    test_calculate_bonds_with_wrong_method()
+    test_calculate_bonds_with_radii_method()
+    test_calculate_bonds_with_constant_delta_method_with_default_param()
+    test_calculate_bonds_with_constant_delta_method_with_explicit_param()
+    test_calculate_bonds_empty()
+    test_calculate_bonds_memoization_with_other_method_or_param()
+    test_calculate_bonds_memoization_with_default_param()
+    test_calculate_bonds_memoization_with_explicit_param()
