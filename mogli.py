@@ -21,7 +21,8 @@ except ImportError:
 import gr3
 import glfw
 from OpenGL.GL import glEnable, glDisable, glClear, glBindFramebuffer,\
-    GL_FRAMEBUFFER, GL_DEPTH_TEST, GL_DEPTH_BUFFER_BIT, GL_COLOR_BUFFER_BIT
+    GL_FRAMEBUFFER, GL_DEPTH_TEST, GL_DEPTH_BUFFER_BIT, GL_COLOR_BUFFER_BIT,\
+    GL_MULTISAMPLE
 
 # Atom color rgb tuples (used for rendering, may be changed by users)
 ATOM_COLORS = np.array([(0, 0, 0),  # Avoid atomic number to index conversion
@@ -120,6 +121,8 @@ BOND_RADIUS = 0.1
 
 def _create_rotation_matrix(angle, x, y, z):
     """ Creates a 3x3 rotation matrix. """
+    if la.norm((x, y, z)) < 0.0001:
+        return np.eye(3, dtype=np.float32)
     x, y, z = np.array((x, y, z))/la.norm((x, y, z))
     matrix = np.zeros((3, 3), dtype=np.float32)
     cos = np.cos(angle)
@@ -386,8 +389,11 @@ def show(molecule, width=500, height=500,
 
     # Initialize GLFW and create an OpenGL context
     glfw.init()
+    glfw.window_hint(glfw.SAMPLES, 16)
     window = glfw.create_window(width, height, title, None, None)
     glfw.make_context_current(window)
+    glEnable(GL_MULTISAMPLE)
+
 
     # Set up the camera (it will be changed during mouse rotation)
     if camera is None:
