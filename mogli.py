@@ -20,7 +20,7 @@ except ImportError:
     pybel = None
 import gr3
 import glfw
-from OpenGL.GL import glEnable, glDisable, glClear, glBindFramebuffer,\
+from OpenGL.GL import glEnable, glDisable, glClear, glBindFramebuffer, glViewport,\
     GL_FRAMEBUFFER, GL_DEPTH_TEST, GL_DEPTH_BUFFER_BIT, GL_COLOR_BUFFER_BIT,\
     GL_MULTISAMPLE
 
@@ -394,7 +394,6 @@ def show(molecule, width=500, height=500,
     glfw.make_context_current(window)
     glEnable(GL_MULTISAMPLE)
 
-
     # Set up the camera (it will be changed during mouse rotation)
     if camera is None:
         camera_distance = -max_atom_distance*2.5
@@ -414,6 +413,8 @@ def show(molecule, width=500, height=500,
     # Start the GLFW main loop
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        width, height = glfw.get_window_size(window)
+        glViewport(0, 0, width, height)
         _set_gr3_camera()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         gr3.drawimage(0, width, 0, height,
