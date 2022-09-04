@@ -213,28 +213,23 @@ class Molecule(object):
             raise ValueError("method should be either 'radii' or 'constant "
                              "delta', not '%s'" % method)
 
-        if self.bonds is not None:
-            # Bonds were calculated for this molecule already.
-            # Reuse those, if the method and optional parameter are like those
-            # provided to this function.
-            if self.bonds.method == method:
-                if self.bonds.param == param:
+        if self.bonds is not None and self.bonds.method == method:
+            if self.bonds.param == param:
+                return
+            elif param is None:
+                # Allow reuse when default param is used.
+                if method == 'radii' and self.bonds.param == 1.0:
                     return
-                elif param is None:
-                    # Allow reuse when default param is used.
-                    if method == 'radii' and self.bonds.param == 1.0:
-                        return
 
         if method == 'radii':
             radii = ATOM_VALENCE_RADII[self.atomic_numbers]
             if param is None:
                 param = 1.0
 
-        if method == 'constant_delta':
-            if param is None:
-                raise ValueError("method 'constant_delta' requires param to "
-                                 "specify the maximum distance between two "
-                                 "atoms to cause a bond between them.")
+        if method == 'constant_delta' and param is None:
+            raise ValueError("method 'constant_delta' requires param to "
+                             "specify the maximum distance between two "
+                             "atoms to cause a bond between them.")
 
         index_pair_list = []
         for index, position in enumerate(self.positions):
@@ -309,8 +304,7 @@ def read(file_name, file_format=None):
             molecules = []
             conv = pybel.ob.OBConversion()
             conv.SetOptions("b".encode('ascii'), conv.INOPTIONS)
-            success = conv.SetInFormat(file_format.encode('ascii'))
-            if success:
+            if success := conv.SetInFormat(file_format.encode('ascii')):
                 mol = pybel.ob.OBMol()
                 has_molecule = conv.ReadFile(mol, file_name.encode('ascii'))
                 while has_molecule:
