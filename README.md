@@ -22,7 +22,7 @@ In python, you can achieve something similar with three lines of code:
 ## Atomic bonds
 You might notice that the atomic bonds between the atoms don't look right. You can hide the bonds by adding the `show_bonds=False` to your `show()` call, but of course there's a a better way to fix the missing bonds here.
 
-For the example above, adding `bond_param=1.15` to `show()` will do the trick. mogli currently offers two ways of calculating atomic bonds. The first method compares the distance between every two atoms with the sum of their valence radii. If they are further apart, no bond is formed. To allow a bit of adjustment, this radii sum is multiplied with a factor that can be set using the `bond_param` parameter to `show()` and `draw()`. By default, `1.0` is used.
+For the example above, adding `bonds_param=1.15` to `show()` will do the trick. mogli currently offers two ways of calculating atomic bonds. The first method compares the distance between every two atoms with the sum of their valence radii. If they are further apart, no bond is formed. To allow a bit of adjustment, this radii sum is multiplied with a factor that can be set using the `bond_param` parameter to `show()` and `draw()`. By default, `1.0` is used.
 
 The second method uses a constant maximum distance instead. If you use this method by passing `bond_method='constant_delta'` to `show()` or `draw()`, you can set the constant distance with the `bond_param` parameter.
 
