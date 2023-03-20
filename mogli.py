@@ -9,7 +9,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from typing import List, Union, Tuple
+from typing import List, Tuple, Optional
 
 import argparse
 import itertools
@@ -194,20 +194,20 @@ class Molecule(object):
         self.positions = positions
         self.bonds = None
         self._atomic_radii = None
-        self.__atom_colors = None
+        self._atom_colors = None
     
     @property
-    def atomcount(self) -> int:
+    def atom_count(self) -> int:
         return len(self.atomic_numbers)
     
     @property
-    def atom_colors(self) -> Union[None, List[Tuple[float]]]:
-        return self.__atom_colors
+    def atom_colors(self) -> Optional[List[Tuple[float]]]:
+        return self._atom_colors
 
     @atom_colors.setter
-    def atom_colors(self, colors: Union[None, List[Tuple[float]]]) -> None:
+    def atom_colors(self, colors: Optional[List[Tuple[float]]]) -> None:
         if colors is None:
-            self.__atom_colors = None
+            self._atom_colors = None
         else:
             if len(colors) != len(self.atomic_numbers):
                 raise RuntimeError("The number of colors must match the number of atoms in the Molecule")
@@ -221,7 +221,7 @@ class Molecule(object):
                     if channel < 0 or channel > 1:
                         raise RuntimeError("The value of each color channel must be between 0 and 1")
             
-            self.__atom_colors = colors
+            self._atom_colors = colors
 
     @property
     def atomic_radii(self):
@@ -439,6 +439,7 @@ def show(molecule, width=500, height=500,
     # Create the GR3 scene
     gr3.setbackgroundcolor(255, 255, 255, 0)
     _create_gr3_scene(molecule, show_bonds)
+
     # Configure GLFW
     glfw.set_cursor_pos_callback(window, _mouse_move_callback)
     glfw.set_mouse_button_callback(window, _mouse_click_callback)
@@ -544,7 +545,7 @@ def _set_gr3_camera():
                      up[0], up[1], up[2])
 
 
-def _create_gr3_scene(molecule: Molecule, show_bonds=True, bond_GRAY_shade = 0.3):
+def _create_gr3_scene(molecule: Molecule, show_bonds=True):
     """
     Create the GR3 scene from the provided molecule and - if show_bonds is
     True (default) - the atomic bonds in the molecule.

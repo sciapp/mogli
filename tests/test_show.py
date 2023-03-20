@@ -57,7 +57,7 @@ def test_show_custom_colors():
 
     # Set a list of custom colors
     molecule.atom_colors = [
-        (i / (molecule.atomcount - 1), 0, 0) for i in range(molecule.atomcount)
+        (i / (molecule.atom_count - 1), 0, 0) for i in range(molecule.atom_count)
     ]
 
     # Set the signal handler
