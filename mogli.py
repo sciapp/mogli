@@ -9,6 +9,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from typing import List, Tuple, Optional
+
 import argparse
 import itertools
 
@@ -118,6 +120,9 @@ ATOM_RADII = np.array(ATOM_VALENCE_RADII, copy=True)*0.4
 # Bond radius in Å (used for rendering, may be changed by users)
 BOND_RADIUS = 0.1
 
+# Shade of gray used to render bond (from 0 black to 1 white)
+BOND_GRAY_SHADE = 0.3
+
 
 def _create_rotation_matrix(angle, x, y, z):
     """ Creates a 3x3 rotation matrix. """
@@ -189,6 +194,34 @@ class Molecule(object):
         self.positions = positions
         self.bonds = None
         self._atomic_radii = None
+        self._atom_colors = None
+    
+    @property
+    def atom_count(self) -> int:
+        return len(self.atomic_numbers)
+    
+    @property
+    def atom_colors(self) -> Optional[List[Tuple[float]]]:
+        return self._atom_colors
+
+    @atom_colors.setter
+    def atom_colors(self, colors: Optional[List[Tuple[float]]]) -> None:
+        if colors is None:
+            self._atom_colors = None
+        else:
+            if len(colors) != len(self.atomic_numbers):
+                raise RuntimeError("The number of colors must match the number of atoms in the Molecule")
+            
+            for color in colors:
+
+                if len(color) != 3:
+                    raise RuntimeError(f"The value {color} is not a valid color tuple")
+                
+                for channel in color:
+                    if channel < 0 or channel > 1:
+                        raise RuntimeError("The value of each color channel must be between 0 and 1")
+            
+            self._atom_colors = colors
 
     @property
     def atomic_radii(self):
@@ -340,7 +373,7 @@ def read(file_name, file_format=None):
                 molecules.append(Molecule(atomic_numbers, positions))
         return molecules
     else:
-        if (file_format is 'xyz' or
+        if (file_format == 'xyz' or
                 (file_format is None and file_name.endswith('.xyz'))):
             with open(file_name, 'r') as input_file:
                 file_content = input_file.readlines()
@@ -406,6 +439,7 @@ def show(molecule, width=500, height=500,
     # Create the GR3 scene
     gr3.setbackgroundcolor(255, 255, 255, 0)
     _create_gr3_scene(molecule, show_bonds)
+
     # Configure GLFW
     glfw.set_cursor_pos_callback(window, _mouse_move_callback)
     glfw.set_mouse_button_callback(window, _mouse_click_callback)
@@ -511,17 +545,20 @@ def _set_gr3_camera():
                      up[0], up[1], up[2])
 
 
-def _create_gr3_scene(molecule, show_bonds=True):
+def _create_gr3_scene(molecule: Molecule, show_bonds=True):
     """
     Create the GR3 scene from the provided molecule and - if show_bonds is
     True (default) - the atomic bonds in the molecule.
     """
     gr3.clear()
     num_atoms = len(molecule.atomic_numbers)
+    colors = molecule.atom_colors if molecule.atom_colors else ATOM_COLORS[molecule.atomic_numbers]
+
     gr3.drawspheremesh(num_atoms,
                        molecule.positions,
-                       ATOM_COLORS[molecule.atomic_numbers],
+                       colors,
                        molecule.atomic_radii)
+    
     if show_bonds and len(molecule.bonds.index_pairs) > 0:
         index_pairs = molecule.bonds.index_pairs
         num_bonds = len(molecule.bonds)
@@ -530,7 +567,7 @@ def _create_gr3_scene(molecule, show_bonds=True):
         bond_lengths = la.norm(bond_directions, axis=1)
         bond_directions /= bond_lengths.reshape(num_bonds, 1)
         bond_radii = np.ones(num_bonds, dtype=np.float32)*BOND_RADIUS
-        bond_colors = np.ones((num_bonds, 3), dtype=np.float32)*0.3
+        bond_colors = np.ones((num_bonds, 3), dtype=np.float32)*BOND_GRAY_SHADE
         gr3.drawcylindermesh(num_bonds, bond_positions, bond_directions,
                              bond_colors, bond_radii, bond_lengths)
 
